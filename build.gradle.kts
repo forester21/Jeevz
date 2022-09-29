@@ -27,6 +27,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 	implementation("io.github.openfeign:feign-okhttp:11.10")
+	implementation("net.sourceforge.tess4j:tess4j:5.4.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
