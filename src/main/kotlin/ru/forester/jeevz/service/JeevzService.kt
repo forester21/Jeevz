@@ -9,9 +9,8 @@ class JeevzService(
     private val notionService: NotionService
 ) {
 
-    fun createQuoteFromPhoto() {
-        val image = File("")
-        ocrService.recognizeText(image).let {
+    fun createQuoteFromPhoto(image: File): String {
+        return ocrService.recognizeText(image).also {
             notionService.addQuote(it)
         }
     }

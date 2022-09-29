@@ -28,6 +28,7 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 	implementation("io.github.openfeign:feign-okhttp:11.10")
 	implementation("net.sourceforge.tess4j:tess4j:5.4.0")
+	implementation("com.github.pengrad:java-telegram-bot-api:6.2.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
