@@ -1,0 +1,6 @@
+application:
+  client:
+    notion:
+      apiKey: changeMe
+    telegram:
+      apiKey: changeMe
