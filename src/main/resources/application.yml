@@ -4,3 +4,6 @@ application:
       apiKey: changeMe
     telegram:
       apiKey: changeMe
+spring:
+  profiles:
+    active: local
