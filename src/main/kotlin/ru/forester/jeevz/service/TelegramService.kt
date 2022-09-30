@@ -11,7 +11,6 @@ import com.pengrad.telegrambot.request.SendMessage
 import mu.KLogging
 import org.springframework.stereotype.Service
 import ru.forester.jeevz.client.TelegramClient
-import ru.forester.jeevz.domain.NotionPage
 import ru.forester.jeevz.utils.chatId
 import ru.forester.jeevz.utils.sendMessage
 import javax.annotation.PostConstruct
@@ -26,19 +25,20 @@ class TelegramService(
     private val notionService: NotionService
 ) {
 
-    fun sendKeyboard(chatId: Any, notionPages: List<NotionPage>) {
+    fun sendBooksList(chatId: Any) {
         bot.execute(
             SendMessage(chatId, "Choose your book").replyMarkup(
-                InlineKeyboardMarkup(*notionPages.map { arrayOf((InlineKeyboardButton(it.name).callbackData(it.id))) }
-                    .toTypedArray())
+                InlineKeyboardMarkup(
+                    *notionService.getBooksList().map { arrayOf((InlineKeyboardButton(it.name).callbackData(it.id))) }
+                        .toTypedArray())
             )
         )
     }
 
     @PostConstruct
     fun setUpdateListener() {
-        bot.setUpdatesListener {
-            it.forEach(::eventReceived)
+        bot.setUpdatesListener { updates ->
+            updates.forEach { Thread { eventReceived(it) }.start() }
             UpdatesListener.CONFIRMED_UPDATES_ALL
         }
     }
@@ -48,7 +48,7 @@ class TelegramService(
             when {
                 update.message()?.photo()?.isNotEmpty() == true -> processPhoto(update)
                 update.callbackQuery()?.data() != null -> processCallback(update)
-                else -> sendKeyboard(update.chatId(), notionService.getBooksList())
+                else -> sendBooksList(update.chatId())
             }
         } catch (e: Exception) {
             logger.error("Exception while handling tlg msg", e)
@@ -62,9 +62,24 @@ class TelegramService(
     }
 
     private fun processPhoto(update: Update) {
+        checkBookIsSelected(update)
         getFileFromMessage(update.message())
             .let { jeevzService.createQuoteFromPhoto(it) }
             .also { bot.sendMessage(update.chatId(), "Added new quote:\n$it") }
+    }
+
+    //TODO refactor using observer
+    private fun checkBookIsSelected(update: Update) {
+        if (notionService.pageId == null) {
+            sendBooksList(update.chatId())
+        }
+        for (i in 1..60) {
+            if (notionService.pageId != null) {
+                return
+            }
+            Thread.sleep(1000L)
+        }
+        throw Exception("timed out waiting book choose")
     }
 
     private fun sendErrorMessage(e: Exception, update: Update) {

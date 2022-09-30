@@ -8,6 +8,7 @@ import ru.forester.jeevz.dto.notion.*
 @Service
 class NotionService(private val notionClient: NotionClient) {
 
+    @Volatile
     var pageId: String? = null
 
     fun getBooksList() = notionClient.getBlock(ROOT_PAGE).results
